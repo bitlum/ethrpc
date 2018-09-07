@@ -11,6 +11,10 @@ import (
 	"os"
 )
 
+// nullResponse is what ethereum daemon returns when it doesn't have data to
+// return, instead of nil, it returns byte string.
+var nullResponse = []byte("null")
+
 // EthError - ethereum error
 type EthError struct {
 	Code    int    `json:"code"`
@@ -115,7 +119,12 @@ func (rpc *EthRPC) Call(method string, params ...interface{}) (json.RawMessage, 
 		return nil, *resp.Error
 	}
 
-	return resp.Result, nil
+	result := resp.Result
+	if bytes.Equal(result, nullResponse) {
+		result = nil
+	}
+
+	return result, nil
 
 }
 
