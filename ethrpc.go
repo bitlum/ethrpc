@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"time"
 )
 
 // nullResponse is what ethereum daemon returns when it doesn't have data to
@@ -49,9 +50,13 @@ type EthRPC struct {
 
 // New create new rpc client with given url
 func New(url string, options ...func(rpc *EthRPC)) *EthRPC {
+	client := &http.Client{
+		Timeout: time.Second * 30,
+	}
+
 	rpc := &EthRPC{
 		url:    url,
-		client: http.DefaultClient,
+		client: client,
 		log:    log.New(os.Stderr, "", log.LstdFlags),
 	}
 	for _, option := range options {
